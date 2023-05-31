@@ -1,0 +1,106 @@
+{
+  "subtract_same_row_two_cols": [
+    {
+      "id": 14,
+      "key": "Profit în lună",
+      "account_col_name": "cont",
+      "account_code": "121",
+      "value_col_name": "rc, rd"
+    }
+  ],
+  "sum_many_rows_same_col": [
+    {
+      "id": 13,
+      "key": "Bugetul statului",
+      "account_col_name": "cont",
+      "account_code": "4315, 4316, 444",
+      "value_col_name": "sc"
+    }
+  ],
+  "single_cell": [
+    {
+      "id": 1,
+      "key": "Datorii furnizori",
+      "account_col_name": "cont",
+      "account_code": "401",
+      "value_col_name": "sc"
+    },
+    {
+      "id": 2,
+      "key": "Datorii clienti",
+      "account_col_name": "cont",
+      "account_code": "411",
+      "value_col_name": "sd"
+    },
+    {
+      "id": 3,
+      "key": "CAM",
+      "account_col_name": "cont",
+      "account_code": "436",
+      "value_col_name": "rc"
+    },
+    {
+      "id": 4,
+      "key": "TVA",
+      "account_col_name": "cont",
+      "account_code": "4423",
+      "value_col_name": "rc"
+    },
+    {
+      "id": 5,
+      "key": "Impozit microintreprindere",
+      "account_col_name": "cont",
+      "account_code": "441",
+      "value_col_name": "rc"
+    },
+    {
+      "id": 6,
+      "key": "Casa",
+      "account_col_name": "cont",
+      "account_code": "5311",
+      "value_col_name": "sd"
+    },
+    {
+      "id": 7,
+      "key": "Banca Transilvania",
+      "account_col_name": "cont",
+      "account_code": "5121BT",
+      "value_col_name": "sd"
+    },
+    {
+      "id": 8,
+      "key": "Banca Transilvania Card",
+      "account_col_name": "cont",
+      "account_code": "5121.CARD",
+      "value_col_name": "sd"
+    },
+    {
+      "id": 9,
+      "key": "Venituri luna",
+      "account_col_name": "cont",
+      "account_code": "121",
+      "value_col_name": "rc"
+    },
+    {
+      "id": 10,
+      "key": "Cheltuieli luna",
+      "account_col_name": "cont",
+      "account_code": "121",
+      "value_col_name": "rd"
+    },
+    {
+      "id": 11,
+      "key": "Profit/pierdere an",
+      "account_col_name": "cont",
+      "account_code": "121",
+      "value_col_name": "sc"
+    },
+    {
+      "id": 12,
+      "key": "Cifra de afaceri",
+      "account_col_name": "cont",
+      "account_code": "704",
+      "value_col_name": "tsc"
+    }
+  ]
+}

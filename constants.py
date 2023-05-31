@@ -1,0 +1,8 @@
+ID="id"
+KEY="key"
+ACC_COL_NAME = "account_col_name"
+ACC_CODE = "account_code"
+VAL_COL_NAME = "value_col_name"
+SINGLE_CELL = "single_cell"
+AMRSC = "sum_many_rows_same_col"
+SSRTC = "subtract_same_row_two_cols"
