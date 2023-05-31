@@ -2,3 +2,4 @@ __pycache__/
 *.xlsx
 *.xls
 *.csv
+db_fields_output.json
