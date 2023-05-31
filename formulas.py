@@ -47,13 +47,20 @@ def get_single_value(df: pd.DataFrame,
     # ===== DATAFRAME input
 
     # Check if the json fields values exist in data frame
-    if not pd.Series([account_col_name, value_col_name]).isin(df.columns.values).all():
-        error = (f'Una sau ambele coloane `{account_col_name}`, `{value_col_name}`,'
-                 f' necesare pentru calcule, nu există în fișierul încărcat sau au altă denumire.')
+    # if account_col_name in df.columns.values.tolist():
+
+    if not account_col_name in df.columns.values.tolist():
+        error = (f'Coloana `{account_col_name}`,'
+                 f' necesară pentru calcule, nu există în fișierul încărcat sau are altă denumire.')
         return (result, error)
-    if not pd.Series([accounting_code]).isin(df[account_col_name]).all():
-        error = (f'Contul contabil `{accounting_code}`, necesar pentru calcule,'
-                 f' nu există în coloana `{account_col_name}` din fișierul încărcat.')
+
+    if not accounting_code in df[account_col_name].tolist():
+        result = 0.0
+        return (result, error)
+
+    if not value_col_name in df.columns.values.tolist():
+        error = (f'Coloana `{value_col_name}`,'
+                 f' necesară pentru calcule, nu există în fișierul încărcat sau are altă denumire.')
         return (result, error)
 
     try:
@@ -135,13 +142,22 @@ def sum_many_rows_same_col(df: pd.DataFrame,
     # ===== DATAFRAME input
 
     # Check if the json fields values exist in data frame
-    if not pd.Series([account_col_name, value_col_name]).isin(df.columns.values).all():
-        error = (f'Una sau ambele coloane `{account_col_name}`, `{value_col_name}`,'
-                 f' necesare pentru calcule, nu există în fișierul încărcat sau au altă denumire.')
+    if not account_col_name in df.columns.values.tolist():
+        error = (f'Coloana `{account_col_name}`,'
+                 f' necesară pentru calcule, nu există în fișierul încărcat sau are altă denumire.')
         return (result, error)
-    if not pd.Series(accounting_codes_list).isin(df[account_col_name]).all():
-        error = (f'Unele din conturile contabile `{accounting_codes_list}`, necesare pentru calcule,'
-                 f' nu există în coloana `{account_col_name}` din fișierul încărcat.')
+
+    # filter only the accounting codes that exists in excel (to get sum 0 if fields from database are not found in excel)
+    accounting_codes_list = [
+        item for item in accounting_codes_list if item in df[account_col_name].tolist()]
+
+    if len(accounting_codes_list) == 0:
+        result = 0.0
+        return (result, error)
+
+    if not value_col_name in df.columns.values.tolist():
+        error = (f'Coloana `{value_col_name}`,'
+                 f' necesară pentru calcule, nu există în fișierul încărcat sau are altă denumire.')
         return (result, error)
 
     # Get the values needed for calculation as pd.Series
@@ -171,6 +187,7 @@ def sum_many_rows_same_col(df: pd.DataFrame,
 
     try:
         result = partial_values_series.sum()
+
         # Check if the result is missing (is NaN in pandas)
         # using pandas method pd.isna()
         if pd.isna(result):
@@ -218,7 +235,7 @@ def subtract_two_single_values(df: pd.DataFrame,
 
     params = (account_col_name, accounting_codes, value_col_names)
 
-    #  ===== JSON Input
+    #  ===== JSON Input =====
 
     # Check if func params coming from JSON are strings.
     if not all(isinstance(item, str) for item in params) or not all(len(item) > 0 for item in params):
@@ -251,37 +268,68 @@ def subtract_two_single_values(df: pd.DataFrame,
     value_col_name_second = value_col_names_list[1] if len(
         value_col_names_list) > 1 else value_col_names_list[0]
 
-    # ===== DATAFRAME input
+    # ===== DATAFRAME input =====
+
+    columns_values_list = df.columns.values.tolist()
 
     # Check if the json fields values exist in data frame
-    if not pd.Series([account_col_name, value_col_name_first, value_col_name_second]).isin(df.columns.values).all():
-        error = (f'Unele din coloanele `{account_col_name}`, `{value_col_name_first}`, `{value_col_name_second}`'
-                 f' necesare pentru calcule, nu există în fișierul încărcat sau au altă denumire.')
+    if not account_col_name in columns_values_list:
+        error = (f'Coloana `{account_col_name}`,'
+                 f' necesară pentru calcule, nu există în fișierul încărcat sau are altă denumire.')
         return (result, error)
-    if not pd.Series([accounting_code_first, accounting_code_second]).isin(df[account_col_name]).all():
-        error = (f'Unele din conturile contabile `{accounting_code_first}`, `{accounting_code_second}`, necesare pentru calcule,'
-                 f' nu există în coloana `{account_col_name}` din fișierul încărcat.')
-        return (result, error)
+
+    term_first = 0.0
+    term_second = 0.0
+    account_col_name_series = df[account_col_name]
 
     try:
-        term_first = df.loc[df[account_col_name].isin(
-            [accounting_code_first]), value_col_name_first].item()
-        term_second = df.loc[df[account_col_name].isin(
-            [accounting_code_second]), value_col_name_second].item()
+        if accounting_code_first in account_col_name_series.tolist():
+            # Check if the json fields values exist in framedata
+            if value_col_name_first in columns_values_list:
 
-        # Check if the value in each cell is missing (is NaN in pandas) - using pandas method pd.isna()
-        if pd.isna(pd.Series([term_first, term_second])).any():
-            error = (f'Unele din valorile corespunzătoare rândului cu codul contabil `{accounting_code_first}` și coloanei `{value_col_name_first}`,'
-                     f' respectiv rândului cu codul contabil `{accounting_code_second}` și coloanei `{value_col_name_second}`'
-                     f' lipsesc din fișierul încărcat.')
-            return (result, error)
+                term_first = df.loc[account_col_name_series.isin(
+                    [accounting_code_first]), value_col_name_first].item()
 
-        # Check if values in each cell is a number in order to do math operations on them.
-        if not all(isinstance(item, (float, int)) for item in [term_first, term_second]):
-            error = (f'Unele din valorile corespunzătoare rândului cu codul contabil `{accounting_code_first}` și coloanei `{value_col_name_first}`,'
-                     f' respectiv rândului cu codul contabil `{accounting_code_second}` și coloanei `{value_col_name_second}`'
-                     f' din fișierul încărcat nu sunt în format numeric.')
-            return (result, error)
+                # Check if the value in cell is missing (is NaN in pandas) - using pandas method pd.isna()
+                if pd.isna(pd.Series([term_first])).any():
+                    error = (f'Valoarea corespunzătoare rândului cu codul contabil `{accounting_code_first}` și coloanei `{value_col_name_first}`,'
+                             f' lipsește din fișierul încărcat.')
+                    return (result, error)
+                
+                # Check if value in cell is a number in order to do math operations on it.
+                if not isinstance(term_first, (float, int)):
+                    error = (f'Valoarea corespunzătoare rândului cu codul contabil `{accounting_code_first}` și coloanei `{value_col_name_first}`,'
+                             f' din fișierul încărcat nu este în format numeric.')
+                    return (result, error)
+
+            else:
+                error = (f'Coloana `{value_col_name_first}` corespunzătoare rândului cu contul contabil `{accounting_code_first}`,'
+                         f' necesară pentru calcule, nu există în fișierul încărcat sau are altă denumire.')
+                return (result, error)
+
+        if accounting_code_second in account_col_name_series.tolist():
+            # Check if the json fields values exist in framedata
+            if value_col_name_second in columns_values_list:
+
+                term_second = df.loc[account_col_name_series.isin(
+                    [accounting_code_second]), value_col_name_second].item()
+
+                # Check if the value in cell is missing (is NaN in pandas) - using pandas method pd.isna()
+                if pd.isna(pd.Series([term_second])).any():
+                    error = (f'Valoarea corespunzătoare rândului cu codul contabil `{accounting_code_second}` și coloanei `{value_col_name_second}`,'
+                             f' lipsește din fișierul încărcat.')
+                    return (result, error)
+                
+                # Check if value in cell is a number in order to do math operations on it.
+                if not isinstance(term_second, (float, int)):
+                    error = (f'Valoarea corespunzătoare rândului cu codul contabil `{accounting_code_second}` și coloanei `{value_col_name_second}`,'
+                             f' din fișierul încărcat nu este în format numeric.')
+                    return (result, error)
+                
+            else:
+                error = (f'Coloana `{value_col_name_second}` corespunzătoare rândului cu contul contabil `{accounting_code_second}`,'
+                         f' necesară pentru calcule, nu există în fișierul încărcat sau are altă denumire.')
+                return (result, error)
 
     except Exception:
         error = (f'Unele din valorile corespunzătoare rândurilor cu codurile contabile `{accounting_code_first}`, `{accounting_code_second}`'
@@ -294,7 +342,7 @@ def subtract_two_single_values(df: pd.DataFrame,
             result = None
             error = (f'Unele din valorile corespunzătoare rândului cu codul contabil `{accounting_code_first}`'
                      f' și coloanei `{value_col_name_first}` sau rândului cu codul contabil `{accounting_code_second}`'
-                     f' și coloanei `{value_col_name_second}` din fișierul încărcat nu sunt în format numeric.')
+                     f' și coloanei `{value_col_name_second}` lipsesc din fișierul încărcat sau nu sunt în format numeric.')
     except Exception:
         error = (f'Unele din valorile corespunzătoare rândului cu codul contabil `{accounting_code_first}`'
                  f' și coloanei `{value_col_name_first}` sau rândului cu codul contabil `{accounting_code_second}`'

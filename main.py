@@ -166,7 +166,8 @@ def compute_fields(field_names_path: str, data_file_path: str):
         # For each Field Object from the input json file call the appropriate computing func
         # single values is of type <generator> because of "()" instead of "[]"
         single_cell_collection = ({"id": obj[const.ID], "results": formulas.get_single_value(
-            df=df, account_col_name=obj[const.ACC_COL_NAME],
+            df=df, 
+            account_col_name=obj[const.ACC_COL_NAME],
             accounting_code=obj[const.ACC_CODE],
             value_col_name=obj[const.VAL_COL_NAME])} for obj in single_cell_objs_list if isinstance(obj, dict) and
             all(item in obj.keys() for item in fields_required_keys))
