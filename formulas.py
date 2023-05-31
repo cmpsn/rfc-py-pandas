@@ -77,7 +77,7 @@ def get_single_value(df: pd.DataFrame,
         if not isinstance(result, (float, int)):
             result = None
             error = (f'Valoarea corespunzătoare rândului cu codul contabil `{accounting_code}`'
-                     f' și coloanei `{value_col_name}` din fișierul încărcat nu este în format numeric.')
+                     f' și coloanei `{value_col_name}` lipsește din fișierul încărcat sau nu este în format numeric.')
 
     except Exception:
         error = (f'Valoarea corespunzătoare rândului cu codul contabil `{accounting_code}`'
