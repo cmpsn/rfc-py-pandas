@@ -100,11 +100,7 @@ def compute_fields(field_names_path: str, data_file_path: str):
         of the indicators to compute | Can be sys.argv[1]
 
     data_file_path (str):
-        Path to data file (extensions: .csv, .xls, xlsx) | Can be sys.argv[2]
-
-    MAPPING_FIELDS_TO_FUNCS (dict):
-        Hardcoded dictionary mapping the indicators names with the Class
-        where the computing formula is defined as method.
+        Path to data file (extensions: .csv, .xls, xlsx)
 
     Returns:
     ----------

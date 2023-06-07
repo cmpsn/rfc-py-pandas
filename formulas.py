@@ -257,7 +257,12 @@ def subtract_two_single_values(df: pd.DataFrame,
 
     if len(value_col_names_list) > 2:
         error = "Pentru acest câmp a cărui valoare e calculată prin operația aritmetică de scădere" + \
-            " trebuie precizate EXACT 2 nume de coloane în care se găsesc cei 2 termeni ai scăderii."
+            " trebuie precizate MAXIM 2 nume de coloane în care se găsesc cei 2 termeni ai scăderii."
+        return (result, error)
+
+    if (len(accounting_codes_list) + len(value_col_names_list)) < 3:
+        error = "Pentru acest câmp a cărui valoare e calculată prin operația aritmetică de scădere a 2 termeni" + \
+            " trebuie precizate fie 2 conturi contabile și 1 nume de coloană, fie 1 cont contabil și 2 nume de coloane"
         return (result, error)
 
     # Get the subtraction elements
@@ -295,7 +300,7 @@ def subtract_two_single_values(df: pd.DataFrame,
                     error = (f'Valoarea corespunzătoare rândului cu codul contabil `{accounting_code_first}` și coloanei `{value_col_name_first}`,'
                              f' lipsește din fișierul încărcat.')
                     return (result, error)
-                
+
                 # Check if value in cell is a number in order to do math operations on it.
                 if not isinstance(term_first, (float, int)):
                     error = (f'Valoarea corespunzătoare rândului cu codul contabil `{accounting_code_first}` și coloanei `{value_col_name_first}`,'
@@ -319,13 +324,13 @@ def subtract_two_single_values(df: pd.DataFrame,
                     error = (f'Valoarea corespunzătoare rândului cu codul contabil `{accounting_code_second}` și coloanei `{value_col_name_second}`,'
                              f' lipsește din fișierul încărcat.')
                     return (result, error)
-                
+
                 # Check if value in cell is a number in order to do math operations on it.
                 if not isinstance(term_second, (float, int)):
                     error = (f'Valoarea corespunzătoare rândului cu codul contabil `{accounting_code_second}` și coloanei `{value_col_name_second}`,'
                              f' din fișierul încărcat nu este în format numeric.')
                     return (result, error)
-                
+
             else:
                 error = (f'Coloana `{value_col_name_second}` corespunzătoare rândului cu contul contabil `{accounting_code_second}`,'
                          f' necesară pentru calcule, nu există în fișierul încărcat sau are altă denumire.')
