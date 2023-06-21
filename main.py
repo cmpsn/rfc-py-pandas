@@ -192,6 +192,20 @@ def compute_fields(field_names_path: str, data_file_path: str):
                 {"global_error": "Unele informații despre câmpurile care implică identificarea celulelor unice lipsesc din baza de date."})
             return errors
 
+        # If it's a SPECIAL RFC case, for each object in the list filter the values after a split separator for special cases:
+        # if special case, keep the string slice AFTER the separator, otherwise keep the slice before the separator.
+        if const.SPECIAL_RFC in jsn_inp_obj_keys:
+            if jsn_inp_obj[const.SPECIAL_RFC]:
+                single_cell_objs_list = [filter_special_jsn_vals(
+                    dictio=obj, 
+                    separator=const.SPECIAL_RFC_SPLIT_SEP, 
+                    after_sep=True) for obj in single_cell_objs_list if isinstance(obj, dict)]
+            else:
+                single_cell_objs_list = [filter_special_jsn_vals(
+                    dictio=obj, 
+                    separator=const.SPECIAL_RFC_SPLIT_SEP, 
+                    after_sep=False) for obj in single_cell_objs_list if isinstance(obj, dict)]
+
         # For each Field Object from the input json file call the appropriate computing func
         # single values is of type <generator> because of "()" instead of "[]"
         single_cell_collection = ({"id": obj[const.ID], "results": formulas.get_single_value(

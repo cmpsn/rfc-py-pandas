@@ -23,8 +23,8 @@
       "id": 1,
       "key": "Datorii furnizori",
       "account_col_name": "cont",
-      "account_code": "401",
-      "value_col_name": "sc"
+      "account_code": "401:419",
+      "value_col_name": "sc:rd"
     },
     {
       "id": 2,
