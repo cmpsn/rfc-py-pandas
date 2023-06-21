@@ -1,11 +1,12 @@
 {
+  "special_rfc": true,
   "subtract_same_row_two_cols": [
     {
       "id": 14,
       "key": "Profit în lună",
       "account_col_name": "cont",
       "account_code": "121",
-      "value_col_name": "rc, rd"
+      "value_col_name": "rc,rd:rd,rc"
     }
   ],
   "sum_many_rows_same_col": [
@@ -13,7 +14,7 @@
       "id": 13,
       "key": "Bugetul statului",
       "account_col_name": "cont",
-      "account_code": "4315, 4316, 444",
+      "account_code": "4315,4316,444:4315,4316",
       "value_col_name": "sc"
     }
   ],
@@ -22,8 +23,8 @@
       "id": 1,
       "key": "Datorii furnizori",
       "account_col_name": "cont",
-      "account_code": "401",
-      "value_col_name": "sc"
+      "account_code": "401:419",
+      "value_col_name": "sc:rd"
     },
     {
       "id": 2,
