@@ -89,7 +89,8 @@ def get_single_value(df: pd.DataFrame,
 def sum_many_rows_same_col(df: pd.DataFrame,
                            account_col_name: str,
                            accounting_codes: str,
-                           value_col_name: str):
+                           value_col_name: str,
+                           fields_sep: str):
     """
     Compute a value using:
     - 1 column to find multiple values to identify many target rows
@@ -98,15 +99,12 @@ def sum_many_rows_same_col(df: pd.DataFrame,
 
     Parameters:
     ----------
-    df (pd.DataFrame): 
-        DataFrame to use.
-    account_col_name (str): 
-        Name of the column containing the accounting codes.
-    accounting_codes (str): 
-        An enumeration (separated by comma) of accounting codes (as a long string)
+    df (pd.DataFrame): DataFrame to use.
+    account_col_name (str): Name of the column containing the accounting codes.
+    accounting_codes (str): An enumeration (separated by comma) of accounting codes (as a long string)
         coresponding to the rows where the values to sum up exists.
-    value_col_name (str): 
-        Name of the column containing the values to sum up.
+    value_col_name (str): Name of the column containing the values to sum up.
+    fields_sep (str): A string delimiter that separates between names of input fields.
 
     Returns: 
     ----------
@@ -132,7 +130,7 @@ def sum_many_rows_same_col(df: pd.DataFrame,
         item.strip() for item in (account_col_name, value_col_name))
 
     accounting_codes_list = [item.strip()
-                             for item in accounting_codes.split(',')]
+                             for item in accounting_codes.split(fields_sep)]
 
     if len(accounting_codes_list) < 2:
         error = "Pentru acest câmp a cărui valoare e calculată prin operația aritmetică de adunare" + \
@@ -204,7 +202,8 @@ def sum_many_rows_same_col(df: pd.DataFrame,
 def subtract_two_single_values(df: pd.DataFrame,
                                account_col_name: str,
                                accounting_codes: str,
-                               value_col_names: str):
+                               value_col_names: str,
+                               fields_sep: str):
     """
     Compute a value using:
     - 1 column to find multiple values to identify many target rows
@@ -213,16 +212,13 @@ def subtract_two_single_values(df: pd.DataFrame,
 
     Parameters:
     ----------
-    df (pd.DataFrame): 
-        DataFrame to use.
-    account_col_name (str): 
-        Name of the column containing the accounting codes. 
-    accounting_codes (str): 
-        An enumeration (separated by comma) of accounting codes (as a long string)
+    df (pd.DataFrame): DataFrame to use.
+    account_col_name (str): Name of the column containing the accounting codes. 
+    accounting_codes (str): An enumeration (separated by comma) of accounting codes (as a long string)
         coresponding to the rows where the values to sum up exists.
-    value_col_names (str): 
-        An enumeration (separated by comma) of the names of columns (as a long string)
+    value_col_names (str): An enumeration (separated by comma) of the names of columns (as a long string)
         containing the values to subtract (first value_col_name - second value_col_name).
+    fields_sep (str): A string delimiter that separates between names of input fields.
 
     Returns:
     ----------
@@ -246,9 +242,9 @@ def subtract_two_single_values(df: pd.DataFrame,
     # Split and Strip the potential whitespace from the string values in JSON fields
     account_col_name = account_col_name.strip()
     accounting_codes_list = [item.strip()
-                             for item in accounting_codes.split(',')]
+                             for item in accounting_codes.split(fields_sep)]
     value_col_names_list = [item.strip()
-                            for item in value_col_names.split(',')]
+                            for item in value_col_names.split(fields_sep)]
 
     if len(accounting_codes_list) > 2:
         error = "Pentru acest câmp a cărui valoare e calculată prin operația aritmetică de scădere" + \

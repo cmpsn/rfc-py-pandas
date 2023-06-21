@@ -57,11 +57,10 @@ def read_data_file(file_path):
     df = pd.DataFrame()
     error = ""
 
-    if file_extension == ".csv":
+    if file_extension == ".xls":
         try:
-            df = pd.read_csv(file_path, sep=None, engine='python')
+            df = pd.read_excel(file_path, engine='xlrd')
         except Exception:
-            # to do: code to handle exception - send error to client as json ...
             error = ("Fișierul încărcat nu poate fi citit."
                      " Exportați încă o dată datele din baza de date originală"
                      " și încercați din nou să îl încărcați în sistem.")
@@ -74,9 +73,9 @@ def read_data_file(file_path):
                      " Exportați încă o dată datele din baza de date originală"
                      " și încercați din nou să îl încărcați în sistem.")
 
-    elif file_extension == ".xls":
+    elif file_extension == ".csv":
         try:
-            df = pd.read_excel(file_path, engine='xlrd')
+            df = pd.read_csv(file_path, sep=None, engine='python')
         except Exception:
             error = ("Fișierul încărcat nu poate fi citit."
                      " Exportați încă o dată datele din baza de date originală"
@@ -87,6 +86,40 @@ def read_data_file(file_path):
                  " Pentru a putea fi procesat, fișierul trebuie să aibă una din extensiile:"
                  " .csv, .xls sau .xlsx.")
     return (df, error)
+
+
+def filter_special_jsn_vals(dictio: dict, separator: str, after_sep: bool):
+    """
+    Take a dictionary, iterate over its keys, check if the coresp.
+    value is a string, then check if the input separator is in the string, 
+    in which case the string is splitted by the separator and 
+    the second item (index 1) is filtered and returned as the new value 
+    of the respective key.
+
+    Parameters:
+    ----------
+    dictio (dict): A dictionary to iterate through.
+
+    sep (str): A string separator used to split the string values of the dictionary.
+
+    after_sep (bool): A boolean to specify if the filtered and returned slice of the string
+        is that AFTER the first encounter of the separator 
+        (if False, the string slice before the separator is filtered and returned.) 
+
+    Returns:
+    A dictionary with changed string values, in case the separator 
+    is found in the string value. 
+    ----------
+    """
+    for key in dictio.keys():
+        if isinstance(dictio[key], str) and (separator in dictio[key]):
+            if after_sep:
+                dictio[key] = dictio[key].split(separator)[1]
+                # dictio.update({key: val.split(sep)[1]})
+            else:
+                dictio[key] = dictio[key].split(separator)[0]
+
+    return dictio
 
 
 def compute_fields(field_names_path: str, data_file_path: str):
@@ -162,7 +195,7 @@ def compute_fields(field_names_path: str, data_file_path: str):
         # For each Field Object from the input json file call the appropriate computing func
         # single values is of type <generator> because of "()" instead of "[]"
         single_cell_collection = ({"id": obj[const.ID], "results": formulas.get_single_value(
-            df=df, 
+            df=df,
             account_col_name=obj[const.ACC_COL_NAME],
             accounting_code=obj[const.ACC_CODE],
             value_col_name=obj[const.VAL_COL_NAME])} for obj in single_cell_objs_list if isinstance(obj, dict) and
@@ -185,12 +218,27 @@ def compute_fields(field_names_path: str, data_file_path: str):
                 {"global_error": "Unele informații despre câmpurile care implică operația aritmetică de adunare lipsesc din baza de date."})
             return errors
 
+        # If it's a SPECIAL RFC case, for each object in the list filter the values after a split separator for special cases:
+        # if special case, keep the string slice AFTER the separator, otherwise keep the slice before the separator.
+        if const.SPECIAL_RFC in jsn_inp_obj_keys:
+            if jsn_inp_obj[const.SPECIAL_RFC]:
+                add_many_rows_same_col_objs_list = [filter_special_jsn_vals(
+                    dictio=obj, 
+                    separator=const.SPECIAL_RFC_SPLIT_SEP, 
+                    after_sep=True) for obj in add_many_rows_same_col_objs_list if isinstance(obj, dict)]
+            else:
+                add_many_rows_same_col_objs_list = [filter_special_jsn_vals(
+                    dictio=obj, 
+                    separator=const.SPECIAL_RFC_SPLIT_SEP, 
+                    after_sep=False) for obj in add_many_rows_same_col_objs_list if isinstance(obj, dict)]
+
         # For each Field Object from the input json file call the appropriate computing func
         add_many_rows_same_col_collection = ({"id": obj[const.ID], "results": formulas.sum_many_rows_same_col(
             df=df,
             account_col_name=obj[const.ACC_COL_NAME],
             accounting_codes=obj[const.ACC_CODE],
-            value_col_name=obj[const.VAL_COL_NAME])} for obj in add_many_rows_same_col_objs_list if isinstance(obj, dict) and
+            value_col_name=obj[const.VAL_COL_NAME],
+            fields_sep=const.FIELDS_SPLIT_SEP)} for obj in add_many_rows_same_col_objs_list if isinstance(obj, dict) and
             all(item in obj.keys() for item in fields_required_keys))
 
         # Create a list with unzipped results for sum_many_rows_same_col
@@ -211,12 +259,27 @@ def compute_fields(field_names_path: str, data_file_path: str):
                  " lipsesc din baza de date."})
             return errors
 
+        # If it's a SPECIAL RFC case, for each object in the list filter the values after a split separator for special cases:
+        # if special case, keep the string slice AFTER the separator, otherwise keep the slice before the separator.
+        if const.SPECIAL_RFC in jsn_inp_obj_keys:
+            if jsn_inp_obj[const.SPECIAL_RFC]:
+                subtract_same_row_two_cols_objs_list = [filter_special_jsn_vals(
+                    dictio=obj, 
+                    separator=const.SPECIAL_RFC_SPLIT_SEP, 
+                    after_sep=True) for obj in subtract_same_row_two_cols_objs_list if isinstance(obj, dict)]
+            else:
+                subtract_same_row_two_cols_objs_list = [filter_special_jsn_vals(
+                    dictio=obj, 
+                    separator=const.SPECIAL_RFC_SPLIT_SEP, 
+                    after_sep=False) for obj in subtract_same_row_two_cols_objs_list if isinstance(obj, dict)]
+
         # For each Field Object from the input json file call the appropriate computing func
         subtract_same_row_two_cols_collection = ({"id": obj[const.ID], "results": formulas.subtract_two_single_values(
             df=df,
             account_col_name=obj[const.ACC_COL_NAME],
             accounting_codes=obj[const.ACC_CODE],
-            value_col_names=obj[const.VAL_COL_NAME])} for obj in subtract_same_row_two_cols_objs_list if isinstance(obj, dict) and
+            value_col_names=obj[const.VAL_COL_NAME],
+            fields_sep=const.FIELDS_SPLIT_SEP)} for obj in subtract_same_row_two_cols_objs_list if isinstance(obj, dict) and
             all(item in obj.keys() for item in fields_required_keys))
 
         # Create a list with unzipped results for subtract_same_row_two_cols
