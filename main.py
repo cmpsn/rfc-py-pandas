@@ -229,11 +229,13 @@ def compute_fields(field_names_path: str, data_file_path: str):
             ]
 
         # For each Field Object from the input json file call the appropriate computing func
-        # single values is of type <generator> because of "()" instead of "[]"
+        # collect results in a Generator
+        call_specific_func = const.OPERATIONS[item]["func"]
+
         processing_collection = (
             {
                 "id": obj[const.ID],
-                "results": const.OPERATIONS[item]["func"](
+                "results": call_specific_func(
                     df,
                     obj[const.ACC_COL_NAME],
                     obj[const.ACC_CODE],
@@ -246,7 +248,7 @@ def compute_fields(field_names_path: str, data_file_path: str):
             and all(item in obj.keys() for item in fields_required_keys)
         )
 
-        # Create a list with unzipped results for single_cell_collection
+        # Create a list with unzipped results
         results = [
             {"id": item["id"], "value": item["results"][0], "error": item["results"][1]}
             for item in processing_collection
