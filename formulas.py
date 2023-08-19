@@ -4,7 +4,8 @@ import pandas as pd
 def get_single_value(df: pd.DataFrame,
                      account_col_name: str,
                      accounting_code: str,
-                     value_col_name: str):
+                     value_col_name: str,
+                     fields_sep: str):
     """
     Select a Single value from DF using:
     - 1 column to find a single value that identifies the target row
