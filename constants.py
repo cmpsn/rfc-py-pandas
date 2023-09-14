@@ -13,8 +13,8 @@ SINGLE_CELL = "single_cell"
 AMRSC = "sum_many_rows_same_col"
 SSRTC = "subtract_same_row_two_cols"
 
-OPERATIONS: dict[str, dict[str, Callable]] = {
-    SINGLE_CELL: {"func": formulas.get_single_value},
-    AMRSC: {"func": formulas.sum_many_rows_same_col},
-    SSRTC: {"func": formulas.subtract_two_single_values},
+OPERATIONS: dict[str, Callable] = {
+    SINGLE_CELL: formulas.get_single_value,
+    AMRSC: formulas.sum_many_rows_same_col,
+    SSRTC: formulas.subtract_two_single_values,
 }

@@ -3,7 +3,6 @@ import sys
 import pandas as pd
 import json
 import constants as const
-import formulas
 
 
 def read_db_fields_json(file_path: str):
@@ -12,7 +11,8 @@ def read_db_fields_json(file_path: str):
 
     Parameters:
     ----------
-    file_path (str): Path to file.
+    file_path (str):
+        Path to file.
 
     Returns:
     ----------
@@ -106,18 +106,21 @@ def filter_special_jsn_vals(dictio: dict[str, str], separator: str, after_sep: b
 
     Parameters:
     ----------
-    dictio (dict): A dictionary to iterate through.
+    dictio (dict):
+        A dictionary to iterate through.
 
-    sep (str): A string separator used to split the string values of the dictionary.
+    separator (str):
+        A string separator used to split the string values of the dictionary.
 
-    after_sep (bool): A boolean to specify if the filtered and returned slice of the string
+    after_sep (bool):
+        A boolean to specify if the filtered and returned slice of the string
         is that AFTER the first encounter of the separator
         (if False, the string slice before the separator is filtered and returned.)
 
     Returns:
+    ----------
     A dictionary with changed string values, in case the separator
     is found in the string value.
-    ----------
     """
     for key in dictio.keys():
         if isinstance(dictio[key], str) and (separator in dictio[key]):
@@ -230,7 +233,7 @@ def compute_fields(field_names_path: str, data_file_path: str):
 
         # For each Field Object from the input json file call the appropriate computing func
         # collect results in a Generator
-        call_specific_func = const.OPERATIONS[item]["func"]
+        call_specific_func = const.OPERATIONS[item]
 
         processing_collection = (
             {
