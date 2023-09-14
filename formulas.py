@@ -53,6 +53,20 @@ def get_single_value(
         item.strip() for item in params
     )
 
+    if fields_sep in accounting_code:
+        error = (
+            f"Pentru operațiunea `O singură valoare`, nu este permisă folosirea separatorului de"
+            f"valori multiple `{fields_sep}` alături de contul contabil `{accounting_code}`, care trebuie să fie unic."
+        )
+        return (result, error)
+    
+    if fields_sep in value_col_name:
+        error = (
+            f"Pentru operațiunea `O singură valoare`, nu este permisă folosirea separatorului de"
+            f"valori multiple `{fields_sep}` alături de numele coloanei `{value_col_name}`, care trebuie să fie unică."
+        )
+        return (result, error)
+
     # ===== DATAFRAME input
 
     # Check if the json fields values exist in data frame

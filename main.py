@@ -2,7 +2,7 @@ import os
 import sys
 import pandas as pd
 import json
-import constants as const
+import constants as cnst
 
 
 def read_db_fields_json(file_path: str):
@@ -189,12 +189,12 @@ def compute_fields(field_names_path: str, data_file_path: str):
         )
         return errors
 
-    # Tuple of input JSON objects keys that must be present at runtime - from constants
+    # Tuple of input JSON objects keys that must be present at runtime - from cnstants
     fields_required_keys = (
-        const.ID,
-        const.ACC_COL_NAME,
-        const.ACC_CODE,
-        const.VAL_COL_NAME,
+        cnst.ID,
+        cnst.ACC_COL_NAME,
+        cnst.ACC_CODE,
+        cnst.VAL_COL_NAME,
     )
 
     # =========== LUCRU ===============
@@ -203,7 +203,7 @@ def compute_fields(field_names_path: str, data_file_path: str):
     jsn_inp_obj_keys = jsn_inp_obj.keys()
 
     for item in jsn_inp_obj_keys:
-        if item not in const.OPERATIONS.keys():
+        if item not in cnst.OPERATIONS.keys():
             continue
 
         objs_list = jsn_inp_obj[item]
@@ -220,12 +220,12 @@ def compute_fields(field_names_path: str, data_file_path: str):
 
         # If it's a SPECIAL RFC case, for each object in the list filter the values after a split separator for special cases:
         # if special case, keep the string slice AFTER the separator, otherwise keep the slice before the separator.
-        if const.SPECIAL_RFC in jsn_inp_obj_keys:
+        if cnst.SPECIAL_RFC in jsn_inp_obj_keys:
             objs_list = [
                 filter_special_jsn_vals(
                     dictio=obj,
-                    separator=const.SPECIAL_RFC_SPLIT_SEP,
-                    after_sep=True if jsn_inp_obj[const.SPECIAL_RFC] else False,
+                    separator=cnst.SPECIAL_RFC_SPLIT_SEP,
+                    after_sep=True if jsn_inp_obj[cnst.SPECIAL_RFC] else False,
                 )
                 for obj in objs_list
                 if isinstance(obj, dict)
@@ -233,17 +233,20 @@ def compute_fields(field_names_path: str, data_file_path: str):
 
         # For each Field Object from the input json file call the appropriate computing func
         # collect results in a Generator
-        call_specific_func = const.OPERATIONS[item]
+        call_specific_func = cnst.OPERATIONS[item]
+
+        # ============== AICI de inserat procesarea pentru micro calculator ===============
+        # if item === cnst.MICRO_CALC: ... else: procesarea tip Multiple Fields (curentă)
 
         processing_collection = (
             {
-                "id": obj[const.ID],
+                "id": obj[cnst.ID],
                 "results": call_specific_func(
                     df,
-                    obj[const.ACC_COL_NAME],
-                    obj[const.ACC_CODE],
-                    obj[const.VAL_COL_NAME],
-                    const.FIELDS_SPLIT_SEP,
+                    obj[cnst.ACC_COL_NAME],
+                    obj[cnst.ACC_CODE],
+                    obj[cnst.VAL_COL_NAME],
+                    cnst.MULTIPLE_FIELDS_SPLIT_SEP,
                 ),
             }
             for obj in objs_list
