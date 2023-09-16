@@ -1,10 +1,11 @@
 from typing import Callable
-import microformula
-import formulas
+import microcalc
+import multiformulas
 
 SPECIAL_RFC_SPLIT_SEP = ":"
 MICRO_CALC_FIELDS_SPLIT_SEP = "@"
-MULTIPLE_FIELDS_SPLIT_SEP = ","
+MICRO_CALC_PARSER_JOINERS = f"._{MICRO_CALC_FIELDS_SPLIT_SEP}"
+MULTI_FORMULAS_FIELDS_SPLIT_SEP = ","
 
 # first level API keys
 SPECIAL_RFC = "special_rfc"
@@ -23,8 +24,8 @@ VAL_COL_NAME = "value_col_name"
 
 # API keys mapping to computing functions
 OPERATIONS: dict[str, Callable] = {
-    MICRO_CALC: microformula.compute_micro,
-    SINGLE_CELL: formulas.get_single_value,
-    AMRSC: formulas.sum_many_rows_same_col,
-    SSRTC: formulas.subtract_two_single_values,
+    MICRO_CALC: microcalc.compute_micro,
+    SINGLE_CELL: multiformulas.get_single_value,
+    AMRSC: multiformulas.sum_many_rows_same_col,
+    SSRTC: multiformulas.subtract_two_single_values,
 }

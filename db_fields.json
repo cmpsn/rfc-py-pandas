@@ -1,24 +1,24 @@
 {
   "special_rfc": true,
   "micro_calculator": [
-  {
+    {
       "id": 15,
       "key": "Test_1",
       "account_col_name": "cont",
       "micro_formula": "rc@121-rd@121:rd@121-rc@121"
-  },
+    },
     {
       "id": 16,
       "key": "Test_2",
       "account_col_name": "cont",
       "micro_formula": "sc@4315 + sc@4316 + sc@444 : sc@4315 + sc@4316"
-  },
+    },
     {
       "id": 17,
       "key": "Test_3",
       "account_col_name": "cont",
       "micro_formula": "sc@401 : rd@419"
-  }
+    }
   ],
   "subtract_same_row_two_cols": [
     {
