@@ -147,10 +147,8 @@ def compute_fields(field_names_path: str, data_file_path: str):
 
         # For each Field Object from the input json file call the appropriate computing func
         # collect results in a Generator
+        
         specific_func = cnst.PROCEDURES_MAP[item]
-
-        # ============== AICI de inserat procesarea pentru micro calculator ===============
-        # if item === cnst.MICRO_CALC: ... else: procesarea tip Multiple Fields (curentă)
 
         try:
             if item == cnst.MICRO_CALC:
