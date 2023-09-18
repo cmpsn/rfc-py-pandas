@@ -418,7 +418,7 @@ def compute_micro(
     return (result, error)
 
 
-# ======= TO DO - Execution inside compute_micro() ==========
+# ======= Operations maps
 
 OPERATORS_MAP = {
     "+": add,
