@@ -1,33 +1,4 @@
 import json
-import pyparsing as pp
-from constants import MICRO_CALC_PARSER_JOINERS
-
-
-def parse_microformula_field(src: str):
-    """
-    Parse the string with input formula and returns
-    a nested list of lists with terms and operations.
-    """
-    pp.ParserElement.enable_packrat()
-
-    base_expr = pp.Word(pp.alphanums, pp.alphanums + MICRO_CALC_PARSER_JOINERS)
-
-    muldiv = pp.oneOf("* /")
-    plusminus = pp.oneOf("+ -")
-
-    expr = pp.infix_notation(
-        base_expr,
-        [
-            (muldiv, 2, pp.opAssoc.LEFT),
-            (plusminus, 2, pp.opAssoc.LEFT),
-        ],
-    )
-
-    src = src.replace(" ", "")
-
-    result = expr.parse_string(src).as_list()
-    # Pyparsing returns a list wraped in a list -> get the first element 
-    return result[0]
 
 
 def read_db_fields_json(file_path: str):

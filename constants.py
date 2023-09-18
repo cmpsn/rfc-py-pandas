@@ -4,7 +4,7 @@ import multiformulas
 
 SPECIAL_RFC_SPLIT_SEP = ":"
 MICRO_CALC_FIELDS_SPLIT_SEP = "@"
-MICRO_CALC_PARSER_JOINERS = f"._{MICRO_CALC_FIELDS_SPLIT_SEP}"
+MICRO_CALC_SUPLIM_CHARS = "._"
 MULTI_FORMULAS_FIELDS_SPLIT_SEP = ","
 
 # first level API keys
@@ -23,9 +23,9 @@ ACC_CODE = "account_code"
 VAL_COL_NAME = "value_col_name"
 
 # API keys mapping to computing functions
-OPERATIONS: dict[str, Callable] = {
+PROCEDURES_MAP: dict[str, Callable[..., tuple[float | None, str | None]]] = {
     MICRO_CALC: microcalc.compute_micro,
     SINGLE_CELL: multiformulas.get_single_value,
     AMRSC: multiformulas.sum_many_rows_same_col,
-    SSRTC: multiformulas.subtract_two_single_values,
+    SSRTC: multiformulas.subtract_two_single_values, # type: ignore
 }

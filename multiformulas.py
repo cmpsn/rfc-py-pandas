@@ -50,7 +50,7 @@ def get_single_value(
 
     # Strip the potential whitespace from the string values in JSON fields
     account_col_name, accounting_code, value_col_name = (
-        item.strip() for item in params
+        item for item in params
     )
 
     if fields_sep in accounting_code:
@@ -170,11 +170,11 @@ def sum_many_rows_same_col(
 
     # Strip the potential whitespace from the string values in JSON fields
     account_col_name, value_col_name = (
-        item.strip() for item in (account_col_name, value_col_name)
+        item for item in (account_col_name, value_col_name)
     )
 
     accounting_codes_list = [
-        item.strip() for item in accounting_codes.split(fields_sep)
+        item for item in accounting_codes.split(fields_sep)
     ]
 
     if len(accounting_codes_list) < 2:
@@ -316,30 +316,30 @@ def subtract_two_single_values(
         return (result, error)
 
     # Split and Strip the potential whitespace from the string values in JSON fields
-    account_col_name = account_col_name.strip()
+    account_col_name = account_col_name
     accounting_codes_list = [
-        item.strip() for item in accounting_codes.split(fields_sep)
+        item for item in accounting_codes.split(fields_sep)
     ]
-    value_col_names_list = [item.strip() for item in value_col_names.split(fields_sep)]
+    value_col_names_list = [item for item in value_col_names.split(fields_sep)]
 
     if len(accounting_codes_list) > 2:
         error = (
             "Pentru acest câmp a cărui valoare e calculată prin operația aritmetică de scădere"
-            + " trebuie precizate MAXIM 2 conturi contabile corespunzând valorilor cu care se face operația de scădere."
+            " trebuie precizate MAXIM 2 conturi contabile corespunzând valorilor cu care se face operația de scădere."
         )
         return (result, error)
 
     if len(value_col_names_list) > 2:
         error = (
             "Pentru acest câmp a cărui valoare e calculată prin operația aritmetică de scădere"
-            + " trebuie precizate MAXIM 2 nume de coloane în care se găsesc cei 2 termeni ai scăderii."
+            " trebuie precizate MAXIM 2 nume de coloane în care se găsesc cei 2 termeni ai scăderii."
         )
         return (result, error)
 
     if (len(accounting_codes_list) + len(value_col_names_list)) < 3:
         error = (
             "Pentru acest câmp a cărui valoare e calculată prin operația aritmetică de scădere a 2 termeni"
-            + " trebuie precizate fie 2 conturi contabile și 1 nume de coloană, fie 1 cont contabil și 2 nume de coloane"
+            " trebuie precizate fie 2 conturi contabile și 1 nume de coloană, fie 1 cont contabil și 2 nume de coloane"
         )
         return (result, error)
 

@@ -1,6 +1,6 @@
 import constants as cnst
-from input_fields import read_db_fields_json
-from input_data import read_data_file
+import input_fields as infields
+import input_data as indata
 
 
 def filter_special_jsn_vals(dictio: dict[str, str], separator: str, after_sep: bool):
@@ -61,7 +61,7 @@ def compute_fields(field_names_path: str, data_file_path: str):
 
     # ===== Read the input json coresp. to id_firm =====
 
-    jsn_inp_obj, jsn_inp_reading_error = read_db_fields_json(field_names_path)
+    jsn_inp_obj, jsn_inp_reading_error = infields.read_db_fields_json(field_names_path)
 
     # Check for errors of reading the input json
     if len(jsn_inp_reading_error) > 0:
@@ -83,7 +83,7 @@ def compute_fields(field_names_path: str, data_file_path: str):
 
     # ===== Read the input data file as pandas dataFrame =====
 
-    df, df_inp_reading_error = read_data_file(data_file_path)
+    df, df_inp_reading_error = indata.read_data_file(data_file_path)
 
     # Check for errors of reading the data file (.csv, .xls, .xlsx)
     if len(df_inp_reading_error) > 0:
@@ -105,7 +105,7 @@ def compute_fields(field_names_path: str, data_file_path: str):
     jsn_inp_obj_keys = jsn_inp_obj.keys()
 
     for item in jsn_inp_obj_keys:
-        if item not in cnst.OPERATIONS.keys():
+        if item not in cnst.PROCEDURES_MAP.keys():
             continue
 
         objs_list = jsn_inp_obj[item]
@@ -147,7 +147,7 @@ def compute_fields(field_names_path: str, data_file_path: str):
 
         # For each Field Object from the input json file call the appropriate computing func
         # collect results in a Generator
-        call_specific_func = cnst.OPERATIONS[item]
+        specific_func = cnst.PROCEDURES_MAP[item]
 
         # ============== AICI de inserat procesarea pentru micro calculator ===============
         # if item === cnst.MICRO_CALC: ... else: procesarea tip Multiple Fields (curentă)
@@ -157,11 +157,12 @@ def compute_fields(field_names_path: str, data_file_path: str):
                 processing_collection = (
                     {
                         "id": obj[cnst.ID],
-                        "results": call_specific_func(
+                        "results": specific_func(
                             df,
                             obj[cnst.ACC_COL_NAME].replace(" ", ""),
-                            obj[cnst.MICRO_FORMULA].replace(" ", ""),
+                            obj[cnst.MICRO_FORMULA], # do not replace whitespace
                             cnst.MICRO_CALC_FIELDS_SPLIT_SEP,
+                            cnst.MICRO_CALC_SUPLIM_CHARS
                         ),
                     }
                     for obj in objs_list
@@ -170,7 +171,7 @@ def compute_fields(field_names_path: str, data_file_path: str):
                 processing_collection = (
                     {
                         "id": obj[cnst.ID],
-                        "results": call_specific_func(
+                        "results": specific_func(
                             df,
                             obj[cnst.ACC_COL_NAME].replace(" ", ""),
                             obj[cnst.ACC_CODE].replace(" ", ""),
