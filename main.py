@@ -1,7 +1,7 @@
 import os
 import sys
 import json
-from computation import compute_fields
+import computation as cmp
 
 
 if __name__ == "__main__":
@@ -19,7 +19,7 @@ if __name__ == "__main__":
 
         sys.exit(1)
 
-    rfc_fields = compute_fields(field_names_path, data_file_path)
+    rfc_fields = cmp.compute_fields(field_names_path, data_file_path)
 
     jsn_out_name, jsn_out_extension = os.path.splitext(field_names_path)
     jsn_out_path = "".join([jsn_out_name, "_output", jsn_out_extension])

@@ -11,19 +11,19 @@
       "id": 15,
       "key": "Profit în lună",
       "account_col_name": "cont",
-      "micro_formula": "-rc@121-rd@121:-rd@121-rc@121"
+      "micro_formula": "rc@121-rd@121:rd@121-rc@121"
     },
     {
       "id": 16,
       "key": "Bugetul statului",
       "account_col_name": "cont",
-      "micro_formula": "-(sc@4315 + sc@4316 + sc@444) * (-0.10) : sc@4315 + sc@4316"
+      "micro_formula": "sc@4315 + sc@4316 + sc@444 : sc@4315 + sc@4316"
     },
     {
       "id": 17,
       "key": "Datorii furnizori",
       "account_col_name": "cont",
-      "micro_formula": "-sc@401 : -rd@419"
+      "micro_formula": "sc@401 : rd@419"
     }
   ],
   "subtract_same_row_two_cols": [

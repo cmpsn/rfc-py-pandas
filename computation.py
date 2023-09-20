@@ -1,6 +1,5 @@
 import constants as cnst
-import input_fields as infields
-import input_data as indata
+import inputs as inp
 
 
 def filter_special_jsn_vals(dictio: dict[str, str], separator: str, after_sep: bool):
@@ -41,7 +40,11 @@ def filter_special_jsn_vals(dictio: dict[str, str], separator: str, after_sep: b
 
 def compute_fields(field_names_path: str, data_file_path: str):
     """
-    Main execution of the script.
+    Takes paths to: 
+    1) a json file with objects and their field names 
+    2) a xls/csv file with data
+    and returns a list of objects with computation results and error
+    for each input object.
 
     Parameters:
     ----------
@@ -54,14 +57,14 @@ def compute_fields(field_names_path: str, data_file_path: str):
 
     Returns:
     ----------
-    A JSON format from a python dictionary that includes all indicators and all errors.
+    A list of dictionaries with each field id, value and computation error.
     """
     # Initialize an object to accumulate errors
     errors = []
 
     # ===== Read the input json coresp. to id_firm =====
 
-    jsn_inp_obj, jsn_inp_reading_error = infields.read_db_fields_json(field_names_path)
+    jsn_inp_obj, jsn_inp_reading_error = inp.read_db_fields_json(field_names_path)
 
     # Check for errors of reading the input json
     if len(jsn_inp_reading_error) > 0:
@@ -83,7 +86,7 @@ def compute_fields(field_names_path: str, data_file_path: str):
 
     # ===== Read the input data file as pandas dataFrame =====
 
-    df, df_inp_reading_error = indata.read_data_file(data_file_path)
+    df, df_inp_reading_error = inp.read_data_file(data_file_path)
 
     # Check for errors of reading the data file (.csv, .xls, .xlsx)
     if len(df_inp_reading_error) > 0:

@@ -15,7 +15,7 @@ class NotUnaryOpError(Exception):
     pass
 
 
-# ========= Expression parser ==========
+# ========= Expression parser
 
 
 def parse_field(src: str, suplimentary_chars: str):
@@ -48,12 +48,87 @@ def parse_field(src: str, suplimentary_chars: str):
     # Pyparsing returns a list wrapped in a list (len=1)
     # when the string has more than 1 terms,
     # otherwise returns a non-wrapped list, also len=1,
-    # so, the use of the result must be managed in the caller.
 
     return result
 
 
-# ========== Utility funcs
+# ========= Values retriever from dataframe
+
+def get_val_from_df(
+    term: str,
+    term_sep: str,
+    df: pd.DataFrame,
+    account_col_name: str,
+) -> tuple[float | None, str | None]:
+    """
+    Parse a string label, split in 2 segments:
+    - first segment is the column name in df where the value resides,
+    - second segment is the string value found in `account_col_name` column
+    and get the value from dataframe found where column name meets the row
+    where the second segment is found.
+    """
+    val = None
+    error = None
+
+    try:
+        term_segments = term.split(term_sep, 1)
+        value_col_name = term_segments[0]
+        accounting_code = term_segments[1]
+    except Exception:
+        error = (
+            f"Operatorul de legătură `{term_sep}` nu apare în interiorul"
+            f" termenului `{term}` introdus la setări."
+            f" Operatorul este necesar pentru a identifica în fișierul cu date"
+            f" corespondența dintre coloana cu valori numerice și denumirea contului contabil."
+        )
+        return (val, error)
+
+    # ===== DATAFRAME input
+
+    if not accounting_code in df[account_col_name].tolist():
+        error = (
+            f"Codul contabil `{accounting_code}`,"
+            f" din expresia introdusă la setări, nu există în fișierul încărcat sau are altă denumire."
+        )
+        return (val, error)
+
+    if not value_col_name in df.columns.values.tolist():
+        error = (
+            f"Coloana `{value_col_name}`,"
+            f" din expresia introdusă la setări, nu există în fișierul încărcat sau are altă denumire."
+        )
+        return (val, error)
+
+    try:
+        val = df.loc[df[account_col_name] == accounting_code, value_col_name].item()
+
+    except Exception:
+        error = (
+            f"A apărut o eroare la citirea din fișierul cu date a valorii corespunzătoare termenului `{term}`,"
+            f" mai exact coloanei `{value_col_name}` și contului contabil `{accounting_code}`."
+        )
+    else:
+        try:
+            # Check if the value is missing (i.e, is NaN in pandas, or nan in numpy - which is float)
+            if pd.isna(val):
+                val = None
+                error = (
+                    f"Valoarea `{val}` corespunzătoare termenului `{term}`, mai exact coloanei `{value_col_name}`"
+                    f" și contului contabil `{accounting_code}` lipsește din fișierul încărcat sau"
+                    f" nu poate fi transformată în valoare numerică."
+                )
+            else:
+                val = float(val)
+        except Exception:
+            error = (
+                f"Valoarea `{val}` corespunzătoare termenului `{term}`, mai exact coloanei `{value_col_name}`"
+                f" și contului contabil `{accounting_code}` nu poate fi transformată în valoare numerică."
+            )
+
+    return (val, error)
+
+
+# ========== Arithm utility funcs
 
 
 def add(a: float, b: float):
@@ -102,6 +177,9 @@ def get_rh_item(ls: list[str | list], item_idx: int) -> str | None | list:
     return ls[item_idx + 1]
 
 
+# ========= Arithm computation of the parser result
+
+
 def compute_arithm(
     ls: list[str | list],
     label_sep: str,
@@ -110,12 +188,15 @@ def compute_arithm(
     account_col_name: str,
 ):
     """
-    Computation of input expression found in micro-calculator.
+    Traverse the parser result and compute the arithmetic expressions.
     """
     result: Optional[float] = None
     errors: list[str] = []
 
     ls_len = len(ls)
+
+    if ls_len == 0:
+        return (result, errors)
 
     if ls_len == 1:
         elem = ls[0]
@@ -192,7 +273,7 @@ def compute_arithm(
                 continue
 
             # ==== left hand argument handling
-            # for accumulation of previous computations as lh
+            # accumulation of previous computations as lh
 
             if result is not None:
                 lh = result
@@ -259,75 +340,7 @@ def compute_arithm(
     return (result, errors)
 
 
-# ===== TO DO -> NOT implemented yet =========
-
-
-def get_val_from_df(
-    term: str,
-    term_sep: str,
-    df: pd.DataFrame,
-    account_col_name: str,
-) -> tuple[float | None, str | None]:
-    val = None
-    error = None
-
-    try:
-        term_segments = term.split(term_sep, 1)
-        value_col_name = term_segments[0]
-        accounting_code = term_segments[1]
-    except Exception:
-        error = (
-            f"Operatorul de legătură `{term_sep}` nu apare în interiorul"
-            f" termenului `{term}` introdus la setări."
-            f" Operatorul este necesar pentru a identifica în fișierul cu date"
-            f" corespondența dintre coloana cu valori numerice și denumirea contului contabil."
-        )
-        return (val, error)
-
-    # ===== DATAFRAME input
-
-    if not accounting_code in df[account_col_name].tolist():
-        error = (
-            f"Codul contabil `{accounting_code}`,"
-            f" din expresia introdusă la setări, nu există în fișierul încărcat sau are altă denumire."
-        )
-        return (val, error)
-
-    if not value_col_name in df.columns.values.tolist():
-        error = (
-            f"Coloana `{value_col_name}`,"
-            f" din expresia introdusă la setări, nu există în fișierul încărcat sau are altă denumire."
-        )
-        return (val, error)
-
-    try:
-        val = df.loc[df[account_col_name] == accounting_code, value_col_name].item()
-
-    except Exception:
-        error = (
-            f"A apărut o eroare la citirea din fișierul cu date a valorii corespunzătoare termenului `{term}`,"
-            f" mai exact coloanei `{value_col_name}` și contului contabil `{accounting_code}`."
-        )
-    else:
-        try:
-            # Check if the value is missing (i.e, is NaN in pandas, or nan in numpy - which is float)
-            if pd.isna(val):
-                val = None
-                error = (
-                    f"Valoarea `{val}` corespunzătoare termenului `{term}`, mai exact coloanei `{value_col_name}`"
-                    f" și contului contabil `{accounting_code}` lipsește din fișierul încărcat sau"
-                    f" nu poate fi transformată în valoare numerică."
-                )
-            else:
-                val = float(val)
-        except Exception:
-            error = (
-                f"Valoarea `{val}` corespunzătoare termenului `{term}`, mai exact coloanei `{value_col_name}`"
-                f" și contului contabil `{accounting_code}` nu poate fi transformată în valoare numerică."
-            )
-
-    return (val, error)
-
+# ========= Micro-calc integrator
 
 def compute_micro(
     df: pd.DataFrame,
