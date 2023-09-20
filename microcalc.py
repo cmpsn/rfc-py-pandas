@@ -54,6 +54,7 @@ def parse_field(src: str, suplimentary_chars: str):
 
 # ========= Values retriever from dataframe
 
+
 def get_val_from_df(
     term: str,
     term_sep: str,
@@ -342,6 +343,7 @@ def compute_arithm(
 
 # ========= Micro-calc integrator
 
+
 def compute_micro(
     df: pd.DataFrame,
     account_col_name: str,
@@ -392,6 +394,12 @@ def compute_micro(
 
         if len(computation_errors) > 0:
             error = "\n".join(computation_errors)
+        
+        if (result is None) and (len(computation_errors) == 0):
+            error = (
+                "Formula introdusă în câmpul de setări nu conține operatori aritmetici"
+                "  și/sau suficienți termeni necesari efectuării de calcule."
+            )
 
     except RecursionError:
         error = (
