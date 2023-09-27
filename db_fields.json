@@ -1,6 +1,26 @@
 {
   "special_rfc": false,
+  "micro_calculator_flexi": [
+    {
+      "id": 23,
+      "key": "Datorii furnizori",
+      "account_col_name": "cont",
+      "micro_formula": "sc@401"
+    },
+    {
+      "id": 22,
+      "key": "Bugetul statului",
+      "account_col_name": "cont",
+      "micro_formula": "sc@4315 + sc@4316 + sc@444 + aa@12 : sc@4315 + sc@4316"
+    }
+  ],
   "micro_calculator": [
+    {
+      "id": 21,
+      "key": "Test",
+      "account_col_name": "cont",
+      "micro_formula": "1"
+    },
     {
       "id": 20,
       "key": "Test expresie",

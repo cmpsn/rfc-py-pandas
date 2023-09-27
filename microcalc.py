@@ -55,11 +55,104 @@ def parse_field(src: str, suplimentary_chars: str):
 # ========= Values retriever from dataframe
 
 
+def query_strict(
+    df: pd.DataFrame,
+    account_col_name: str,
+    value_col_name: str,
+    accounting_code: str,
+    term: str,
+) -> tuple[float | None, str | None]:
+    val = None
+    error = None
+    # ===== DATAFRAME input
+    if not accounting_code in df[account_col_name].tolist():
+        error = (
+            f"Codul contabil `{accounting_code}`,"
+            f" din expresia introdusă la setări, nu există în fișierul încărcat sau are altă denumire."
+        )
+        return (val, error)
+
+    if not value_col_name in df.columns.values.tolist():
+        error = (
+            f"Coloana `{value_col_name}`,"
+            f" din expresia introdusă la setări, nu există în fișierul încărcat sau are altă denumire."
+        )
+        return (val, error)
+
+    try:
+        val = df.loc[df[account_col_name] == accounting_code, value_col_name].item()
+
+    except Exception:
+        error = (
+            f"A apărut o eroare la citirea valorii corespunzătoare termenului `{term}` din setările firmei,"
+            f" respectiv coloanei `{value_col_name}` și contului contabil `{accounting_code}`"
+            f" din fișierul încărcat."
+        )
+    else:
+        try:
+            # Check if the value is missing (i.e, is NaN in pandas, or nan in numpy - which is float)
+            if pd.isna(val):
+                val = None
+                error = (
+                    f"Valoarea corespunzătoare termenului `{term}` din setările firmei, respectiv"
+                    f" coloanei `{value_col_name}` și contului contabil `{accounting_code}`"
+                    f" lipsește din fișierul încărcat sau nu poate fi transformată în valoare numerică."
+                )
+            else:
+                val = float(val)
+        except Exception:
+            error = (
+                f"Valoarea corespunzătoare termenului `{term}` din setările firmei, respectiv"
+                f" coloanei `{value_col_name}` și contului contabil `{accounting_code}`"
+                f" nu poate fi transformată în valoare numerică."
+            )
+
+    return (val, error)
+
+
+def query_flexi(
+    df: pd.DataFrame,
+    account_col_name: str,
+    value_col_name: str,
+    accounting_code: str,
+    term: str,
+) -> tuple[float, str | None]:
+    val = 0.0
+    error = None
+    # ===== DATAFRAME input
+    if (value_col_name in df.columns.values.tolist()) and (
+        accounting_code in df[account_col_name].tolist()
+    ):
+        try:
+            val = df.loc[df[account_col_name] == accounting_code, value_col_name].item()
+
+        except Exception:
+            error = (
+                f"A apărut o eroare la citirea valorii corespunzătoare termenului `{term}` din setările firmei,"
+                f" respectiv coloanei `{value_col_name}` și contului contabil `{accounting_code}`"
+                f" din fișierul încărcat."
+            )
+        else:
+            try:
+                # Check if the value is missing (i.e, is NaN in pandas, or nan in numpy - which is float)
+                if pd.isna(val):
+                    val = 0.0
+            except Exception:
+                error = (
+                    f"Valoarea corespunzătoare termenului `{term}` din setările firmei, respectiv"
+                    f" coloanei `{value_col_name}` și contului contabil `{accounting_code}`"
+                    f" nu poate fi transformată în valoare numerică."
+                )
+
+    return (val, error)
+
+
 def get_val_from_df(
     term: str,
     term_sep: str,
     df: pd.DataFrame,
     account_col_name: str,
+    strict_data_query: bool,
 ) -> tuple[float | None, str | None]:
     """
     Parse a string label, split in 2 segments:
@@ -84,47 +177,15 @@ def get_val_from_df(
         )
         return (val, error)
 
-    # ===== DATAFRAME input
-
-    if not accounting_code in df[account_col_name].tolist():
-        error = (
-            f"Codul contabil `{accounting_code}`,"
-            f" din expresia introdusă la setări, nu există în fișierul încărcat sau are altă denumire."
-        )
-        return (val, error)
-
-    if not value_col_name in df.columns.values.tolist():
-        error = (
-            f"Coloana `{value_col_name}`,"
-            f" din expresia introdusă la setări, nu există în fișierul încărcat sau are altă denumire."
-        )
-        return (val, error)
-
-    try:
-        val = df.loc[df[account_col_name] == accounting_code, value_col_name].item()
-
-    except Exception:
-        error = (
-            f"A apărut o eroare la citirea din fișierul cu date a valorii corespunzătoare termenului `{term}`,"
-            f" mai exact coloanei `{value_col_name}` și contului contabil `{accounting_code}`."
+    # Get data from df
+    if strict_data_query:
+        val, error = query_strict(
+            df, account_col_name, value_col_name, accounting_code, term
         )
     else:
-        try:
-            # Check if the value is missing (i.e, is NaN in pandas, or nan in numpy - which is float)
-            if pd.isna(val):
-                val = None
-                error = (
-                    f"Valoarea `{val}` corespunzătoare termenului `{term}`, mai exact coloanei `{value_col_name}`"
-                    f" și contului contabil `{accounting_code}` lipsește din fișierul încărcat sau"
-                    f" nu poate fi transformată în valoare numerică."
-                )
-            else:
-                val = float(val)
-        except Exception:
-            error = (
-                f"Valoarea `{val}` corespunzătoare termenului `{term}`, mai exact coloanei `{value_col_name}`"
-                f" și contului contabil `{accounting_code}` nu poate fi transformată în valoare numerică."
-            )
+        val, error = query_flexi(
+            df, account_col_name, value_col_name, accounting_code, term
+        )
 
     return (val, error)
 
@@ -187,6 +248,7 @@ def compute_arithm(
     operators: dict[str, Callable[..., float]],
     df: pd.DataFrame,
     account_col_name: str,
+    strict_data_query: bool,
 ):
     """
     Traverse the parser result and compute the arithmetic expressions.
@@ -204,7 +266,7 @@ def compute_arithm(
 
         if isinstance(elem, list):
             result, next_errors = compute_arithm(
-                elem, label_sep, operators, df, account_col_name
+                elem, label_sep, operators, df, account_col_name, strict_data_query
             )
 
             if len(next_errors) > 0:
@@ -217,7 +279,7 @@ def compute_arithm(
                 result = float(elem)
             else:
                 result, data_error = get_val_from_df(
-                    elem, label_sep, df, account_col_name
+                    elem, label_sep, df, account_col_name, strict_data_query
                 )
 
                 if data_error is not None:
@@ -230,7 +292,7 @@ def compute_arithm(
         first_elem = ls[0]
         second_elem = ls[1]
 
-        if isinstance(first_elem, list) or first_elem not in UNARY_MAP:
+        if isinstance(first_elem, list) or (first_elem not in UNARY_MAP):
             raise NotUnaryOpError
 
         else:
@@ -238,7 +300,12 @@ def compute_arithm(
 
             if isinstance(second_elem, list):
                 result, next_errors = compute_arithm(
-                    second_elem, label_sep, operators, df, account_col_name
+                    second_elem,
+                    label_sep,
+                    operators,
+                    df,
+                    account_col_name,
+                    strict_data_query,
                 )
 
                 if result is not None:
@@ -254,7 +321,7 @@ def compute_arithm(
                     result = unary_func(float(second_elem))
                 else:
                     result, data_error = get_val_from_df(
-                        second_elem, label_sep, df, account_col_name
+                        second_elem, label_sep, df, account_col_name, strict_data_query
                     )
 
                     if result is not None:
@@ -267,7 +334,9 @@ def compute_arithm(
 
     for idx, item in enumerate(ls):
         if isinstance(item, list):
-            compute_arithm(item, label_sep, operators, df, account_col_name)
+            compute_arithm(
+                item, label_sep, operators, df, account_col_name, strict_data_query
+            )
 
         else:
             if item not in operators:
@@ -284,7 +353,12 @@ def compute_arithm(
 
                 if isinstance(lh, list):
                     lh, next_errors = compute_arithm(
-                        lh, label_sep, operators, df, account_col_name
+                        lh,
+                        label_sep,
+                        operators,
+                        df,
+                        account_col_name,
+                        strict_data_query,
                     )
 
                     if len(next_errors) > 0:
@@ -299,7 +373,7 @@ def compute_arithm(
                         lh = float(lh)
                     else:
                         lh, data_error = get_val_from_df(
-                            lh, label_sep, df, account_col_name
+                            lh, label_sep, df, account_col_name, strict_data_query
                         )
 
                         if data_error is not None:
@@ -311,7 +385,7 @@ def compute_arithm(
 
             if isinstance(rh, list):
                 rh, next_errors = compute_arithm(
-                    rh, label_sep, operators, df, account_col_name
+                    rh, label_sep, operators, df, account_col_name, strict_data_query
                 )
 
                 if len(next_errors) > 0:
@@ -326,7 +400,7 @@ def compute_arithm(
                     rh = float(rh)
                 else:
                     rh, data_error = get_val_from_df(
-                        rh, label_sep, df, account_col_name
+                        rh, label_sep, df, account_col_name, strict_data_query
                     )
 
                     if data_error is not None:
@@ -337,6 +411,8 @@ def compute_arithm(
             if lh is not None and rh is not None:
                 arithm_operation = operators[item]
                 result = arithm_operation(lh, rh)
+            else:
+                break
 
     return (result, errors)
 
@@ -350,6 +426,7 @@ def compute_micro(
     micro_formula: str,
     label_fields_sep: str,
     sumplimentary_chars: str,
+    strict_data_query: bool,
 ):
     """
     Returns a tuple with the result of computation as float or None,
@@ -389,12 +466,17 @@ def compute_micro(
     # Do the computations
     try:
         result, computation_errors = compute_arithm(
-            operations_nested, label_fields_sep, OPERATORS_MAP, df, account_col_name
+            operations_nested,
+            label_fields_sep,
+            OPERATORS_MAP,
+            df,
+            account_col_name,
+            strict_data_query,
         )
 
         if len(computation_errors) > 0:
             error = "\n".join(computation_errors)
-        
+
         if (result is None) and (len(computation_errors) == 0):
             error = (
                 "Formula introdusă în câmpul de setări nu conține operatori aritmetici"

@@ -40,8 +40,8 @@ def filter_special_jsn_vals(dictio: dict[str, str], separator: str, after_sep: b
 
 def compute_fields(field_names_path: str, data_file_path: str):
     """
-    Takes paths to: 
-    1) a json file with objects and their field names 
+    Takes paths to:
+    1) a json file with objects and their field names
     2) a xls/csv file with data
     and returns a list of objects with computation results and error
     for each input object.
@@ -150,20 +150,21 @@ def compute_fields(field_names_path: str, data_file_path: str):
 
         # For each Field Object from the input json file call the appropriate computing func
         # collect results in a Generator
-        
+
         specific_func = cnst.PROCEDURES_MAP[item]
 
         try:
-            if item == cnst.MICRO_CALC:
+            if item in [cnst.MICRO_CALC, cnst.MICRO_CALC_FLEXI]:
                 processing_collection = (
                     {
                         "id": obj[cnst.ID],
                         "results": specific_func(
                             df,
                             obj[cnst.ACC_COL_NAME].replace(" ", ""),
-                            obj[cnst.MICRO_FORMULA], # do not replace whitespace
+                            obj[cnst.MICRO_FORMULA],  # do not replace whitespace
                             cnst.MICRO_CALC_FIELDS_SPLIT_SEP,
-                            cnst.MICRO_CALC_SUPLIM_CHARS
+                            cnst.MICRO_CALC_SUPLIM_CHARS,
+                            strict_data_query=False if item == cnst.MICRO_CALC_FLEXI else True,
                         ),
                     }
                     for obj in objs_list
