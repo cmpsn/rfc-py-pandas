@@ -412,7 +412,8 @@ def compute_arithm(
                 arithm_operation = operators[item]
                 result = arithm_operation(lh, rh)
             else:
-                break
+                result = None
+                return (result, errors)
 
     return (result, errors)
 

@@ -3,9 +3,9 @@
   "micro_calculator_flexi": [
     {
       "id": 23,
-      "key": "Datorii furnizori",
+      "key": "Test expresie",
       "account_col_name": "cont",
-      "micro_formula": "sc@401"
+      "micro_formula": "-(5 + 5*sc@444) / (10 + 10) + (-sc@401 * 0.19 + 10)"
     },
     {
       "id": 22,
@@ -17,15 +17,15 @@
   "micro_calculator": [
     {
       "id": 21,
-      "key": "Test",
+      "key": "Bugetul statului",
       "account_col_name": "cont",
-      "micro_formula": "1"
+      "micro_formula": "sc@4315 + sc@4316 + sc@444 : sc@4315 + sc@4316"
     },
     {
       "id": 20,
       "key": "Test expresie",
       "account_col_name": "cont",
-      "micro_formula": "-(5 + 5) / (10 + 10) + (-sc@401 * 0.19 + 10)"
+      "micro_formula": "-(5 + 5*sc@444) / (10 + 10) + (-sc@401 * 0.19 + 10)"
     },
     {
       "id": 15,
