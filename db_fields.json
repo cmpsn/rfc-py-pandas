@@ -1,6 +1,12 @@
 {
   "special_rfc": false,
   "micro_calculator_flexi": [
+      {
+      "id": 2000,
+      "key": "Bugetul statului",
+      "account_col_name": "cont",
+      "micro_formula": "-rc@121 + 11"
+    },
     {
       "id": 23,
       "key": "Test expresie",
@@ -65,6 +71,13 @@
     }
   ],
   "single_cell": [
+    {
+      "id": 1000,
+      "key": "Bugetul statului",
+      "account_col_name": "cont",
+      "account_code": "1011",
+      "value_col_name": "rc"
+    },
     {
       "id": 1,
       "key": "Datorii furnizori",

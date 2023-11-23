@@ -79,8 +79,20 @@ def get_single_value(
         )
         return (result, error)
 
+    # Transform all values in "account_col_name" to strings (sometimes the values in this column are imported as integers)
+    try:
+        df[account_col_name] = df[account_col_name].astype("str")
+    except Exception:
+        error = (
+            f"Coloana `{account_col_name}`,"
+            f" necesară pentru calcule, conține caractere care nu pot fi transformate în format string/text."
+        )
+
     if not accounting_code in df[account_col_name].tolist():
         result = 0.0
+        # for col in df.columns:
+        #     print(col)
+        # print([type(item) for item in df[account_col_name].tolist()])
         return (result, error)
 
     if not value_col_name in df.columns.values.tolist():
@@ -193,6 +205,15 @@ def sum_many_rows_same_col(
             f" necesară pentru calcule, nu există în fișierul încărcat sau are altă denumire."
         )
         return (result, error)
+    
+    # Transform all values in "account_col_name" to strings (sometimes the values in this column are imported as integers)
+    try:
+        df[account_col_name] = df[account_col_name].astype("str")
+    except Exception:
+        error = (
+            f"Coloana `{account_col_name}`,"
+            f" necesară pentru calcule, conține caractere care nu pot fi transformate în format string/text."
+        )
 
     # filter only the accounting codes that exists in excel (to get sum 0 if fields from database are not found in excel)
     accounting_codes_list = [
@@ -368,6 +389,15 @@ def subtract_two_single_values(
             f" necesară pentru calcule, nu există în fișierul încărcat sau are altă denumire."
         )
         return (result, error)
+    
+    # Transform all values in "account_col_name" to strings (sometimes the values in this column are imported as integers)
+    try:
+        df[account_col_name] = df[account_col_name].astype("str")
+    except Exception:
+        error = (
+            f"Coloana `{account_col_name}`,"
+            f" necesară pentru calcule, conține caractere care nu pot fi transformate în format string/text."
+        )
 
     term_first = 0.0
     term_second = 0.0

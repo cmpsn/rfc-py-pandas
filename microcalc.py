@@ -466,6 +466,10 @@ def compute_micro(
 
     # Do the computations
     try:
+        # Cast all values in "account_col_name" to strings 
+        # (sometimes the values in this column are imported as integers)
+        df[account_col_name] = df[account_col_name].astype("str")
+
         result, computation_errors = compute_arithm(
             operations_nested,
             label_fields_sep,
