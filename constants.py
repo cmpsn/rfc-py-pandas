@@ -17,9 +17,11 @@ SSRTC = "subtract_same_row_two_cols"
 
 # API objects keys
 ID = "id"
-KEY = "key"
 MICRO_FORMULA = "micro_formula"
+
 ACC_COL_NAME = "account_col_name"
+
+# for old/legacy formulas version
 ACC_CODE = "account_code"
 VAL_COL_NAME = "value_col_name"
 
